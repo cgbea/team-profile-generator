@@ -13,76 +13,113 @@ const render = require("./src/page-template.js");
 
 // TODO: Write Code to gather information about the development team members, and render the HTML file.
 
-// array of questions for user
-const questions = [
-    {
-        type: 'input',
-        name: 'manager.name',
-        message: 'Please enter the name of the team manager',
-    },
-    {
-        type: 'input',
-        name: 'manager.id',
-        message: 'Please enter the employee ID of the team manager',
-    },
-    {
-        type: 'input',
-        name: 'manager.email',
-        message: 'Please enter the email address of the team manager',
-    },
-    {
-        type: 'input',
-        name: 'manager.officeNumber',
-        message: 'Please enter the office number of the team manager',
-    },
-    {
-        type: 'list',
-        name: 'step2',
-        message: 'What would you like to do next?',
-        choices: ['Add an engineer', 'Add an intern', 'Finish building the team'],
-    },
-    {
-        type: 'input',
-        name: 'manager-name',
-        message: 'Please enter the name of the engineer',
-        when: function(answers) {
-            return answers. ///////////////////////
+const employees = [];
+
+async function assembleTeam() {
+    const managerAnswers = await inquirer.prompt([
+        {
+            type: 'input',
+            name: 'name',
+            message: 'Please enter the name of the team manager',
+        },
+        {
+            type: 'input',
+            name: 'id',
+            message: 'Please enter the employee ID of the team manager',
+        },
+        {
+            type: 'input',
+            name: 'email',
+            message: 'Please enter the email address of the team manager',
+        },
+        {
+            type: 'input',
+            name: 'officeNumber',
+            message: 'Please enter the office number of the team manager',
         }
-    },
-    {
-        type: 'input',
-        name: 'manager-id',
-        message: 'Please enter the employee ID of the team manager',
-    },
-    {
-        type: 'input',
-        name: 'manager-email',
-        message: 'Please enter the email address of the team manager',
-    },
-    {
-        type: 'input',
-        name: 'office-no',
-        message: 'Please enter the office number of the team manager',
-    },
+    ]);
 
-];
+    const manager = new Manager(managerAnswers.name, managerAnswers.id, managerAnswers.email, managerAnswers.officeNumber);
+    employees.push(manager);
 
-// function to write README file
-function writeToFile(fileName, data) {
-    return fs.writeFileSync(fileName, data);
+    await gatherTeamMembers();
+    const renderedHTML = render(employees);
+
+    fs.writeFileSync(outputPath, renderedHTML);
+    console.log("Team HTML file generated successfully!");
 }
 
-// function to initialize program
-function init() {
-    inquirer.prompt(questions)
-        .then((answers) => {
-            const markdown = generateMarkdown(answers);
-            writeToFile("README.md", markdown);
-        })
-        .catch((error) => {
-            console.error("Error:", error);
+async function gatherTeamMembers() {
+    let addMember = true;
+    while (addMember) {
+        const { memberType } = await inquirer.prompt({
+            type: 'list',
+            name: 'memberType',
+            message: 'What type of team member would you like to add next?',
+            choices: ['Engineer', 'Intern', 'Finish building the team'],
         });
+
+        if (memberType === 'Finish building the team') {
+            addMember = false;
+            break;
+        }
+
+        if (memberType === 'Engineer') {
+            const engineer = await inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'name',
+                    message: 'Please enter the name of the engineer',
+                },
+                {
+                    type: 'input',
+                    name: 'id',
+                    message: 'Please enter the employee ID of the engineer',
+                },
+                {
+                    type: 'input',
+                    name: 'email',
+                    message: 'Please enter the email address of the engineer',
+                },
+                {
+                    type: 'input',
+                    name: 'github',
+                    message: 'Please enter the GitHub username of the engineer',
+                }
+            ]);
+
+            const newEngineer = new Engineer(engineer.name, engineer.id, engineer.email, engineer.github);
+            employees.push(newEngineer);
+        }
+
+        if (memberType === 'Intern') {
+            const intern = await inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'name',
+                    message: 'Please enter the name of the intern',
+                },
+                {
+                    type: 'input',
+                    name: 'id',
+                    message: 'Please enter the employee ID of the intern',
+                },
+                {
+                    type: 'input',
+                    name: 'email',
+                    message: 'Please enter the email address of the intern',
+                },
+                {
+                    type: 'input',
+                    name: 'school',
+                    message: 'Please enter the name of the school where the intern attends',
+                }
+            ]);
+
+            const newIntern = new Intern(intern.name, intern.id, intern.email, intern.school);
+            employees.push(newIntern);
+        }
+    }
 }
 
-// function call to initialize program
-init();
+assembleTeam();
