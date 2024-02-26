@@ -11,12 +11,14 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 const render = require("./src/page-template.js");
 
 
-// TODO: Write Code to gather information about the development team members, and render the HTML file.
+// Code to gather information about the development team members, and render the HTML file.
 
+//empty array for the employee objects generated from inquirer prompts.
 const employees = [];
 
+//start by asking the manager details, followed by optional other employees.
 async function assembleTeam() {
-    const managerAnswers = await inquirer.prompt([
+    const manager = await inquirer.prompt([
         {
             type: 'input',
             name: 'name',
@@ -39,19 +41,20 @@ async function assembleTeam() {
         }
     ]);
 
-    const manager = new Manager(managerAnswers.name, managerAnswers.id, managerAnswers.email, managerAnswers.officeNumber);
-    employees.push(manager);
+    const newManager = new Manager(manager.name, manager.id, manager.email, manager.officeNumber);
+    employees.push(newManager);
 
-    await gatherTeamMembers();
+    await otherEmployees();
+
+    //pass the employee object values to the page template using render.
     const renderedHTML = render(employees);
 
     fs.writeFileSync(outputPath, renderedHTML);
-    console.log("Team HTML file generated successfully!");
 }
 
-async function gatherTeamMembers() {
-    let addMember = true;
-    while (addMember) {
+async function otherEmployees() {
+    let addEmployee = true;
+    while (addEmployee) {
         const { memberType } = await inquirer.prompt({
             type: 'list',
             name: 'memberType',
@@ -60,7 +63,7 @@ async function gatherTeamMembers() {
         });
 
         if (memberType === 'Finish building the team') {
-            addMember = false;
+            addEmployee = false;
             break;
         }
 
