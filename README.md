@@ -4,6 +4,7 @@
 
 This project's goal was to convert existing starter code into a working Node.js command-line application. This application prompts the users with questions about employees on a software engineering team, then generates an HTML webpage that displays summaries for each person, based on the users input. The classes for each employee type were created on the basis of TDD - the tests for each employee typer were provided beforehand.
 
+A sample generated HTML can be found [here](/output/team.html).
 
 
 ## Installation
