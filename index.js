@@ -49,9 +49,11 @@ async function assembleTeam() {
     //pass the employee object values to the page template using render.
     const renderedHTML = render(employees);
 
+    //create the HTML using the file paths defined in the constants at the start of this js file.
     fs.writeFileSync(outputPath, renderedHTML);
 }
 
+//prompt for and create other employees according to user choices
 async function otherEmployees() {
     let addEmployee = true;
     while (addEmployee) {
